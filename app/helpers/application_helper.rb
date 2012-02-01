@@ -4,5 +4,4 @@ module ApplicationHelper
   def gist_js_url id
     "#{GIST_URL}/#{id}.js"
   end
-    
 end

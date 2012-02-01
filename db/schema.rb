@@ -47,11 +47,13 @@ ActiveRecord::Schema.define(:version => 20120125165831) do
 
   create_table "posts", :force => true do |t|
     t.string   "title"
+    t.integer  "comments_count", :default => 0
     t.text     "body"
     t.string   "state"
     t.integer  "user_id"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
+    t.string   "type"
   end
 
   create_table "posts_tags", :id => false, :force => true do |t|

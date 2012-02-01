@@ -1,19 +1,19 @@
 class Posts::ShowPresenter
   extend ActiveModel::Naming
+  include Replaceable::Mentionable
+  include Replaceable::Gistable
   
-  attr_reader :post
+  attr_reader :record
   
   def initialize(post)
-    @post = post
+    @record = post
   end
   
   def body
-    CGI::escapeHTML(post.body).gsub(/\{gist:(\d+)\}/) do
-      Github::Gist.script_tag($1)
-    end.html_safe
+    @record.replace_gists.replace_usernames.body
   end
   
   def method_missing(method)
-    post.public_send(method) if post.respond_to? method
+    record.public_send(method) if record.respond_to? method
   end
 end
