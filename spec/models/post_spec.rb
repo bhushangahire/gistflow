@@ -10,8 +10,8 @@ describe Post do
     
     context 'should replace usernames in posts' do
       let(:user) { Factory(:user) }
-      let(:post) { Factory(:post, :body => " @#{user.username} #{Faker::Lorem.paragraph}") }
-      it { puts Posts::ShowPresenter.new(post).body }
+      let(:post) { Factory(:post, :body => "@#{user.username} #{Faker::Lorem.paragraph}") }
+      it { Posts::ShowPresenter.new(post).body.include?("<a href=\"users/#{user.username}\">@#{user.username}</a>").should == true }
     end
   end
 end
