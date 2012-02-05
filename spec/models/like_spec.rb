@@ -1,6 +1,15 @@
 require 'spec_helper'
 
 describe Like do
+  it 'should be invalid if likeable user == user' do
+    post = Factory(:post)
+    like = post.likes.build do |like|
+      like.user = post.user
+    end
+    like.should be_invalid
+    like.should have(1).error_on(:user)
+  end
+  
   context 'user should be able to like post or comment' do
     before(:each) do
       @user = Factory(:user)
