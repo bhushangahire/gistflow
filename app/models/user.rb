@@ -1,7 +1,6 @@
 class User < ActiveRecord::Base
   has_many :account_cookies, :class_name => 'Account::Cookie'
-  has_many :comments, :foreign_key => :author_id
-  has_many :answer_comments, :class_name => "Comment", :foreign_key => :consignee_id
+  has_many :comments
   
   validates :username, :name, :email, :presence => true
   validates :username, :email, :uniqueness => true
