@@ -8,12 +8,24 @@ Gistflow::Application.routes.draw do
     get :add_to_favorites, :on => :member
   end
   
+  resources :notifications, :only => :index
+  
   resources :users, :only => :show do
     resources :gists, :only => :index
   end
-  resources :articles, :only => :index, :controller => :posts, :type => 'Article'
-  resources :questions, :only => :index, :controller => :posts, :type => 'Question'
-  resources :community, :only => :index, :controller => :posts, :type => 'Community'
+  
+  resources :articles, 
+    :only => [:index, :show], 
+    :controller => :posts, 
+    :type => 'Article'
+  resources :questions,
+    :only => [:index, :show], 
+    :controller => :posts, 
+    :type => 'Question'
+  resources :community, 
+    :only => [:index, :show], 
+    :controller => :posts, 
+    :type => 'Community'
   resources :tags, :only => :show
   root to: 'posts#index'
 end
