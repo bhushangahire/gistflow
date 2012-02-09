@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120205094457) do
+ActiveRecord::Schema.define(:version => 20120209184704) do
 
   create_table "account_cookies", :force => true do |t|
     t.string  "secret"
@@ -45,6 +45,13 @@ ActiveRecord::Schema.define(:version => 20120205094457) do
   end
 
   add_index "favorite_posts_lovers", ["post_id", "user_id"], :name => "index_favorite_posts_lovers_on_post_id_and_user_id", :unique => true
+
+  create_table "followers", :force => true do |t|
+    t.integer "user_id"
+    t.integer "tag_id"
+  end
+
+  add_index "followers", ["user_id", "tag_id"], :name => "index_followers_on_user_id_and_tag_id", :unique => true
 
   create_table "gists", :force => true do |t|
     t.integer "user_id"
