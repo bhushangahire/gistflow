@@ -3,7 +3,8 @@ module Models
     extend ActiveSupport::Concern
     
     included do
-      has_and_belongs_to_many :tags
+      has_many :taggings, :as => :taggable, :depended => :destroy
+      has_many :tags, :through => :taggings
     
       scope :tagged_with, (lambda do |names|
         joins(:tags).where(:tags => { :name => names }).uniq

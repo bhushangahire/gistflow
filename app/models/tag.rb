@@ -8,6 +8,10 @@ class Tag < ActiveRecord::Base
     order('posts_count desc').limit(limit)
   end)
   
+  def to_param
+    name
+  end
+  
   def to_s
     name
   end
@@ -24,9 +28,5 @@ class Tag < ActiveRecord::Base
   
   def dom_link_id
     'subscr' << name.to_s
-  end
-  
-  def to_param
-    name
   end
 end
