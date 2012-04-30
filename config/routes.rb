@@ -26,8 +26,6 @@ Gistflow::Application.routes.draw do
   resources :tags, :only => :show
   resources :users, :only => :show do
     member do
-      delete :unfollow
-      post :follow
       get :following, :followers
     end
   end
@@ -41,6 +39,7 @@ Gistflow::Application.routes.draw do
     resource :remembrance, :only => :show
     resources :gists, :only => :index
     resources :notifications, :only => :index
+    resources :followings, :only => [:create, :destroy]
   end
   resources :gists, :only => :show
   
