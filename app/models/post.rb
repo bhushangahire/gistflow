@@ -22,6 +22,8 @@ class Post < ActiveRecord::Base
   
   after_create :tweet
   
+  scope :from_followed_users, lambda { |user| followed_by(user) }
+  
   def link_name
     ln = title.blank? ? preview : title
     ln[0..30].strip
@@ -67,5 +69,11 @@ protected
       status << url.short_url
       user.twitter_client.update(status)
     end
+  end
+  
+  def self.followed_by(user)
+    followed_user_ids = %(SELECT followed_user_id FROM followings
+                          WHERE follower_id = :user_id)
+    where("user_id IN (#{followed_user_ids})", { user_id: user })
   end
 end

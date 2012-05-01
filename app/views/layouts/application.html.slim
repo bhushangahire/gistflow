@@ -24,6 +24,7 @@ html
         ul.menu
           li= link_to_unless_current 'Flow', flow_url, :class => 'flow_posts', :rel => :nofollow
           li= link_to_unless all_posts_page?, 'All', all_url, :class => 'all_posts'
+          li= link_to_unless feed_posts_page?, 'Friends feed', feed_url, :class => 'feed_posts'
         
         - if content_for?(:title)
           header.title

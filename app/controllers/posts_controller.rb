@@ -15,6 +15,10 @@ class PostsController < ApplicationController
   def flow
     @posts = current_user.intrested_posts.page(params[:page])
   end
+  
+  def feed
+    @posts = current_user.followed_posts.page(params[:page])
+  end
 
   def show
     @post = Post.find(params[:id])
