@@ -2,8 +2,8 @@ class User < ActiveRecord::Base
   include Models::Likable
   include Models::Memorizable
   
-  has_many :account_cookies, :class_name => 'Account::Cookie'
-  has_one  :account_twitter, :class_name => 'Account::Twitter'
+  has_many :account_cookies, class_name: :'Account::Cookie'
+  has_one  :account_twitter, class_name: :'Account::Twitter'
   has_many :posts
   has_many :likes
   has_many :comments
@@ -14,15 +14,31 @@ class User < ActiveRecord::Base
   has_many :reverse_followings, :foreign_key => :followed_user_id, :class_name => 'Following'
   has_many :followed_users, :through => :followings, :source => :followed_user
   has_many :followers, :through => :reverse_followings
+  has_many :tags, through: :subscriptions
+  has_many :observings
+  has_many :observing_posts, {
+    through:    :observings,
+    class_name: :'Post',
+    source:     :user
+  }
   
-  validates :username, :name, :presence => true
-  validates :username, :uniqueness => true
+  validates :username, :name, presence: true
+  validates :username, uniqueness: true
   
   after_create :send_welcome_email
   
   def intrested_posts
-    Post.joins(:tags => { :subscriptions => :user }).
-      where(:users => { :id => id }).uniq
+    Post.joins(tags: { subscriptions: :user }).where(users: { id: id }).uniq
+  end
+  
+  def observe(post)
+    observings.first_or_create! do |observing|
+      observing.post = post
+    end
+  end
+  
+  def observe?(post)
+    observings.map(&:post_id).include? post.id
   end
   
   def to_param
@@ -68,7 +84,7 @@ class User < ActiveRecord::Base
   end
     
   def mark_notifications_read
-    notifications.unread.update_all(:read => true)
+    notifications.unread.update_all read: true
   end
   
   def admin?

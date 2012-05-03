@@ -1,6 +1,6 @@
 FactoryGirl.define do
-  factory :subscription do
+  factory :observing do
+    post
     user
-    tag
   end
 end

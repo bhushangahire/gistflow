@@ -2,28 +2,14 @@ class ApplicationController < ActionController::Base
   enable_authorization
   protect_from_forgery
   
-  prepend_before_filter :cleanup_form_present
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   rescue_from Exception, with: :notify_batman
-  helper_method :user_signed_in?, :current_user, :sidebar_tags,
-    :show_new_post_link?, :form_present?
+  helper_method :user_signed_in?, :current_user, :sidebar_tags
   
 protected
   
   def current_user_newbie?
     current_user.try(:newbie?)
-  end
-
-  def cleanup_form_present
-    session[:form_present] = nil unless request.xhr?
-  end
-  
-  def form_present!
-    session[:form_present] = true	
-  end
-  
-  def form_present?
-    session[:form_present]
   end
   
   def notify_batman(exception)
@@ -51,11 +37,6 @@ protected
   
   def user_signed_in?
     !!current_user
-  end
-  
-  def show_new_post_link?
-    user_signed_in? && ['home', 'posts'].include?(params[:controller]) && 
-      params[:action] == 'index'
   end
   
   def current_user

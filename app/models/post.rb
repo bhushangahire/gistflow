@@ -1,26 +1,34 @@
 class Post < ActiveRecord::Base
   include Models::Likable
-  include Models::Notifiable
   include Models::Taggable
+  include Models::Mentionable
   include Models::Searchable unless Rails.env.test?
   
-  belongs_to :user, :inverse_of => :posts
+  default_scope order: 'posts.id desc'
+  
+  belongs_to :user, inverse_of: :posts
   has_many :comments
+  has_many :observings
+  has_many :notifications, {
+    as:         :notifiable,
+    dependent:  :destroy,
+    class_name: 'Notification::Post'
+  }
   
-  default_scope :order => 'id desc'
-  
-  validates :user, :presence => true
-  validates :title, :presence => true
-  validates :cuts_count, :inclusion => { :in => [0, 1] }
-  validates :preview, :length => 3..500
-  validates :tags_size, :numericality => { :greater_than => 0 }
-  validates :status, format: { with: /http:\/\/goo.gl\/xxxxxx/ }, 
-    length: { maximum: 140 }, :if => :status?
+  validates :user, :title, presence: true
+  validates :cuts_count, inclusion: { in: [0, 1] }
+  validates :preview, length: 3..500
+  validates :tags_size, numericality: { greater_than: 0 }
+  validates :status, format: { with: %r{http://goo.gl/xxxxxx} }, 
+    length: { maximum: 140 }, if: :status?
   
   attr_accessor :status
   attr_accessible :title, :content, :question, :status
   
   after_create :tweet
+  after_save :cache
+  after_create :setup_observing_for_author
+  after_destroy :clear_cache
   
   scope :from_followed_users, lambda { |user| followed_by(user) }
   
@@ -44,6 +52,16 @@ class Post < ActiveRecord::Base
   
   def status?
     status.present?
+  end
+  
+  def formatted_preview(reload = false)
+    @formatted_preview = nil if reload
+    @formatted_preview ||= cached_preview || Markdown.markdown(begin
+      raw = Replaceable.new(preview)
+      raw.replace_gists!.replace_tags!.replace_usernames!
+      raw.to_s
+    end)
+    @formatted_preview.to_s.html_safe
   end
   
 protected
@@ -75,5 +93,26 @@ protected
     followed_user_ids = %(SELECT followed_user_id FROM followings
                           WHERE follower_id = :user_id)
     where("user_id IN (#{followed_user_ids})", { user_id: user })
+  end
+  
+  def cached_preview
+    $redis.get cache_key(:preview)
+  end
+  
+  def cache
+    $redis.set cache_key(:preview), formatted_preview
+  end
+  
+  def clear_cache
+    $redis.del cache_key
+  end
+  
+  def cache_key(*paths)
+    [:posts, id, paths].flatten.compact.join(':')
+  end
+  
+  def setup_observing_for_author
+    user.observe(self)
+    true
   end
 end
