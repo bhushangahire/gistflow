@@ -26,7 +26,13 @@ Gistflow::Application.routes.draw do
   get '/empty_search'  => 'searches#empty', as: 'nil_search'
   get '/search/:query' => 'searches#show',  as: 'show_search'
   
-  resources :tags, :users, :gists, only: :show
+  resources :tags, :gists, only: :show
+  
+  resources :users, only: :show do
+    member do
+      get :followers, :following
+    end
+  end
   
   namespace :admin do
     resources :users, only: :index
@@ -37,6 +43,7 @@ Gistflow::Application.routes.draw do
     resources :gists, :notifications, only: :index
     resources :subscriptions, only: [:index, :create, :destroy]
     resources :observings, only: [:create, :destroy]
+    resources :followings, only: [:create, :destroy]
   end
   
   root to: 'posts#index'
